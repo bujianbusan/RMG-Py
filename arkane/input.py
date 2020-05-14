@@ -534,7 +534,9 @@ def SMILES(smiles):
 
 def adjacencyList(adj):
     """Make a Molecule object from an adjacency list"""
-    return Molecule().from_adjacency_list(adj)
+    return Molecule().from_adjacency_list(adj,
+                                          raise_atomtype_exception=False,
+                                          raise_charge_exception=False)
 
 
 def InChI(inchi):
