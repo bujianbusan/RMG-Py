@@ -44,7 +44,7 @@ import numpy as np
 from rmgpy.data.base import Database, Entry, get_all_combinations
 from rmgpy.data.kinetics.common import save_entry
 from rmgpy.exceptions import KineticsError, DatabaseError
-from rmgpy.kinetics import ArrheniusEP, Arrhenius, StickingCoefficientBEP, SurfaceArrheniusBEP
+from rmgpy.kinetics import ArrheniusEP, Arrhenius, ArrheniusBM, StickingCoefficientBEP, SurfaceArrheniusBEP
 from rmgpy.quantity import Quantity, ScalarQuantity
 from rmgpy.reaction import Reaction
 
@@ -727,6 +727,18 @@ class KineticsRules(Database):
 
         kinetics.comment += "\n"
         kinetics.comment += "family: {0}".format(self.label.replace('/rules', ''))
+
+        if isinstance(kinetics, Arrhenius):
+            if kinetics.E0.value_si < -41.8:
+                kinetics.comment += '\n'
+                kinetics.comment += 'Warning: The estimated E0 = {} {} is probably wrong. It is thus made 0 kJ/mol.'.format(kinetics.Ea.value, kinetics.Ea.units)
+                kinetics.Ea.value = 0               
+        
+        if isinstance(kinetics, (ArrheniusEP, ArrheniusBM)):
+            if kinetics.E0.value_si < -41.8:
+                kinetics.comment += '\n'
+                kinetics.comment += 'Warning: The estimated E0 = {} {} is probably wrong. It is thus made 0 kJ/mol.'.format(kinetics.E0.value, kinetics.E0.units)
+                kinetics.E0.value = 0
 
         return kinetics, (entry if 'Exact' in kinetics.comment else None)
 
